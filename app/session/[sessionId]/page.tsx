@@ -41,7 +41,7 @@ export default function SessionRoom({ params }: { params: { sessionId: string } 
     <div className="flex w-full h-screen bg-warm-white overflow-hidden font-sans text-ink">
       {/* ── Main Stage (Video + Controls) ─────────────────────── */}
       <div className="flex-1 flex flex-col relative z-10 transition-all duration-300">
-
+        
         {/* Header Bar */}
         <div className="h-16 flex items-center justify-between px-6 shrink-0 relative z-20">
           <div className="flex items-center gap-3">
@@ -60,14 +60,14 @@ export default function SessionRoom({ params }: { params: { sessionId: string } 
 
         {/* Video Grid */}
         <div className="flex-1 p-6 pt-0 flex flex-col lg:flex-row gap-4 relative z-10">
-
+          
           {/* Main Speaker (Teacher) */}
           <div className="flex-1 relative rounded-2xl overflow-hidden bg-ink/[0.04]">
             {/* The actual video element would go here. For now, mock a placeholder. */}
             <div className="absolute inset-0 flex items-center justify-center">
               <ProfileAvatar seed={TEACHER.name} size={160} className="opacity-80" />
             </div>
-
+            
             {/* Nameplate */}
             <div className="absolute bottom-4 left-4 flex gap-2">
               <div className="bg-warm-white/90 backdrop-blur-md px-3 py-1.5 rounded-lg border border-ink/10 flex items-center gap-2">
@@ -76,7 +76,7 @@ export default function SessionRoom({ params }: { params: { sessionId: string } 
             </div>
 
             {/* AI Agent "Conducting" Overlay (subtle) */}
-            <motion.div
+            <motion.div 
               className="absolute top-4 right-4 bg-warm-white/90 backdrop-blur-md px-3 py-1.5 rounded-lg border border-ink/10 flex items-center gap-2"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -119,10 +119,10 @@ export default function SessionRoom({ params }: { params: { sessionId: string } 
                 </div>
               )}
             </div>
-
+            
             {/* Context/Presentation Placeholder */}
             <div className="hidden lg:flex w-full flex-1 rounded-xl bg-ink/[0.02] border-2 border-dashed border-ink/10 items-center justify-center flex-col gap-2 relative">
-              {/* Sketchy framing bracket */}
+               {/* Sketchy framing bracket */}
               <svg className="absolute -top-1 -right-1 w-6 h-6 text-ink/20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <path d="M 2 8 L 2 2 L 8 2" />
               </svg>
@@ -138,10 +138,11 @@ export default function SessionRoom({ params }: { params: { sessionId: string } 
 
         {/* Toolbar */}
         <div className="h-20 flex items-center justify-center gap-4 shrink-0 pb-4 relative z-20">
-          <button
+          <button 
             onClick={() => setIsMicOn(!isMicOn)}
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${isMicOn ? "bg-ink/[0.05] hover:bg-ink/[0.1] text-ink" : "bg-red-500/10 text-red-600 border border-red-500/20"
-              }`}
+            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
+              isMicOn ? "bg-ink/[0.05] hover:bg-ink/[0.1] text-ink" : "bg-red-500/10 text-red-600 border border-red-500/20"
+            }`}
           >
             {isMicOn ? (
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
@@ -158,11 +159,12 @@ export default function SessionRoom({ params }: { params: { sessionId: string } 
               </svg>
             )}
           </button>
-
-          <button
+          
+          <button 
             onClick={() => setIsVideoOn(!isVideoOn)}
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${isVideoOn ? "bg-ink/[0.05] hover:bg-ink/[0.1] text-ink" : "bg-red-500/10 text-red-600 border border-red-500/20"
-              }`}
+            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${
+              isVideoOn ? "bg-ink/[0.05] hover:bg-ink/[0.1] text-ink" : "bg-red-500/10 text-red-600 border border-red-500/20"
+            }`}
           >
             {isVideoOn ? (
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
@@ -178,7 +180,7 @@ export default function SessionRoom({ params }: { params: { sessionId: string } 
           </button>
 
           <div className="w-px h-8 bg-ink/10 mx-2" />
-
+          
           <button className="w-12 h-12 rounded-2xl bg-ink/[0.05] hover:bg-ink/[0.1] text-ink flex items-center justify-center transition-all">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
               <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
@@ -190,13 +192,13 @@ export default function SessionRoom({ params }: { params: { sessionId: string } 
           <div className="w-px h-8 bg-ink/10 mx-2" />
 
           {showExitConfirm ? (
-            <div className="flex bg-red-500/10 p-1 rounded-2xl items-center border border-red-500/20 animate-in slide-in-from-right-4 duration-200">
-              <span className="px-3 text-sm font-semibold text-red-600">End session?</span>
-              <button onClick={handleLeave} className="px-4 py-2 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition-colors">Leave</button>
-              <button onClick={() => setShowExitConfirm(false)} className="px-3 py-2 text-ink-muted font-medium hover:text-ink">Cancel</button>
-            </div>
+             <div className="flex bg-red-500/10 p-1 rounded-2xl items-center border border-red-500/20 animate-in slide-in-from-right-4 duration-200">
+               <span className="px-3 text-sm font-semibold text-red-600">End session?</span>
+               <button onClick={handleLeave} className="px-4 py-2 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition-colors">Leave</button>
+               <button onClick={() => setShowExitConfirm(false)} className="px-3 py-2 text-ink-muted font-medium hover:text-ink">Cancel</button>
+             </div>
           ) : (
-            <button
+            <button 
               onClick={() => setShowExitConfirm(true)}
               className="px-6 h-12 rounded-2xl bg-red-500 text-warm-white font-semibold flex items-center justify-center hover:bg-red-600 transition-all shadow-sm"
             >
@@ -208,17 +210,17 @@ export default function SessionRoom({ params }: { params: { sessionId: string } 
 
       {/* ── Side Panel (Notes / Chat / Agent) ──────────────────── */}
       <div className="w-[320px] lg:w-[380px] h-full border-l border-ink/[0.06] flex flex-col bg-warm-white shrink-0 relative z-20">
-
+        
         {/* Panel Tabs */}
         <div className="flex items-center p-2 border-b border-ink/[0.06]">
           {["notes", "chat"].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab as "chat" | "notes")}
-              className={`flex-1 py-3 text-sm font-semibold capitalize rounded-xl transition-colors relative ${activeTab === tab ? "text-ink bg-ink/[0.04]" : "text-ink-muted hover:text-ink"}`}
-            >
-              {tab}
-            </button>
+             <button
+               key={tab}
+               onClick={() => setActiveTab(tab as "chat" | "notes")}
+               className={`flex-1 py-3 text-sm font-semibold capitalize rounded-xl transition-colors relative ${activeTab === tab ? "text-ink bg-ink/[0.04]" : "text-ink-muted hover:text-ink"}`}
+             >
+               {tab}
+             </button>
           ))}
         </div>
 
@@ -227,13 +229,13 @@ export default function SessionRoom({ params }: { params: { sessionId: string } 
           {activeTab === "notes" && (
             <div className="flex flex-col h-full animate-in fade-in duration-300">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold text-ink flex items-center gap-2">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="w-4 h-4 text-ink-muted"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                  Shared Notes
-                </h3>
-                <span className="text-[10px] uppercase tracking-wider text-ink-faint font-medium">Auto-saves to summary</span>
+                 <h3 className="text-sm font-bold text-ink flex items-center gap-2">
+                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="w-4 h-4 text-ink-muted"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                   Shared Notes
+                 </h3>
+                 <span className="text-[10px] uppercase tracking-wider text-ink-faint font-medium">Auto-saves to summary</span>
               </div>
-              <textarea
+              <textarea 
                 className="flex-1 w-full bg-transparent resize-none outline-none text-[15px] leading-relaxed text-ink placeholder:text-ink-muted/30 font-sans"
                 placeholder="Type notes here... both you and Maya can see and edit this document in real-time."
                 defaultValue="- Review heuristic evaluation framework
@@ -245,30 +247,30 @@ export default function SessionRoom({ params }: { params: { sessionId: string } 
 
           {activeTab === "chat" && (
             <div className="flex flex-col h-full animate-in fade-in duration-300 justify-end">
-              <div className="flex flex-col gap-4 mb-4">
-                <div className="text-center font-mono text-[10px] uppercase tracking-widest text-ink-faint my-2">Session started at 3:00 PM</div>
+               <div className="flex flex-col gap-4 mb-4">
+                 <div className="text-center font-mono text-[10px] uppercase tracking-widest text-ink-faint my-2">Session started at 3:00 PM</div>
+                 
+                 <div className="flex flex-col items-start gap-1">
+                   <span className="text-[11px] font-bold text-ink-muted ml-2">Maya Krishnan</span>
+                   <div className="bg-ink/[0.04] px-4 py-2.5 rounded-2xl rounded-tl-sm text-[14px]">
+                     Hi Aayush! Have you brought the research plan draft we discussed?
+                   </div>
+                 </div>
 
-                <div className="flex flex-col items-start gap-1">
-                  <span className="text-[11px] font-bold text-ink-muted ml-2">Maya Krishnan</span>
-                  <div className="bg-ink/[0.04] px-4 py-2.5 rounded-2xl rounded-tl-sm text-[14px]">
-                    Hi Aayush! Have you brought the research plan draft we discussed?
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-end gap-1">
-                  <span className="text-[11px] font-bold text-ink-muted mr-2">You</span>
-                  <div className="bg-ink text-warm-white px-4 py-2.5 rounded-2xl rounded-tr-sm text-[14px]">
-                    Yes! Just dropping the figma link in the notes now.
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-auto pt-4 relative">
-                <input type="text" placeholder="Message..." className="w-full bg-ink/[0.04] border border-transparent focus:border-ink/20 focus:bg-white transition-colors rounded-xl px-4 py-3 text-[14px] outline-none" />
-                <button className="absolute right-3 top-1/2 mt-2 -translate-y-1/2 p-2 text-ink-muted hover:text-ink">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                </button>
-              </div>
+                 <div className="flex flex-col items-end gap-1">
+                   <span className="text-[11px] font-bold text-ink-muted mr-2">You</span>
+                   <div className="bg-ink text-warm-white px-4 py-2.5 rounded-2xl rounded-tr-sm text-[14px]">
+                     Yes! Just dropping the figma link in the notes now.
+                   </div>
+                 </div>
+               </div>
+               
+               <div className="mt-auto pt-4 relative">
+                  <input type="text" placeholder="Message..." className="w-full bg-ink/[0.04] border border-transparent focus:border-ink/20 focus:bg-white transition-colors rounded-xl px-4 py-3 text-[14px] outline-none" />
+                  <button className="absolute right-3 top-1/2 mt-2 -translate-y-1/2 p-2 text-ink-muted hover:text-ink">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                  </button>
+               </div>
             </div>
           )}
         </div>
