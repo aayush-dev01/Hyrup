@@ -52,6 +52,9 @@ export default function SignUpPage() {
       {/* Right Form Panel */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative z-10">
         <SignUp
+          routing="path"
+          path="/sign-up"
+          afterSignUpUrl="/auth/post-auth"
           appearance={{
             elements: {
               rootBox: "w-full max-w-[440px]",
