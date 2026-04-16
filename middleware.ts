@@ -1,4 +1,3 @@
-/* Middleware — Clerk auth gate. Public routes pass through, protected routes require auth. */
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
 const isPublicRoute = createRouteMatcher([
@@ -6,7 +5,6 @@ const isPublicRoute = createRouteMatcher([
   '/sign-in(.*)',
   '/sign-up(.*)',
   '/api/webhooks(.*)',
-  '/onboarding(.*)',
   '/teacher/(.*)',
 ])
 
@@ -19,3 +17,4 @@ export default clerkMiddleware((auth, req) => {
 export const config = {
   matcher: ['/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
 }
+
