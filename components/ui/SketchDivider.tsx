@@ -7,19 +7,19 @@ interface SketchDividerProps {
 
 export const SketchDivider = ({ className = "" }: SketchDividerProps) => {
   return (
-    <div className={`w-full py-1 ${className}`}>
+    <div className={`w-full py-2 ${className}`}>
       <svg
-        className="w-full h-[3px]"
+        className="w-full h-[8px]"
         preserveAspectRatio="none"
-        viewBox="0 0 400 4"
+        viewBox="0 0 400 8"
       >
         <path
-          d="M 0 2 Q 50 0.5, 100 2 T 200 2 T 300 2 T 400 2"
+          d="M 0 4 Q 50 1, 100 4 T 200 4 T 300 4 Q 350 7 400 4"
           fill="none"
           stroke="currentColor"
-          strokeWidth="1"
+          strokeWidth="0.75"
           strokeLinecap="round"
-          className="text-ink/[0.08]"
+          className="text-ink/[0.2]"
           vectorEffect="non-scaling-stroke"
         />
       </svg>

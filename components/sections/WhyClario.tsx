@@ -8,6 +8,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { HandText } from "../ui/HandText";
+import { CelebrationFigure } from "@/components/landing/CinematicDoodles";
 
 const reasons = [
   {
@@ -34,7 +35,7 @@ const reasons = [
 
 export const WhyClario = () => {
   return (
-    <section className="w-full bg-ink py-[100px] px-6 md:px-12 overflow-hidden">
+    <section className="w-full bg-ink py-[140px] px-6 md:px-12 overflow-hidden relative">
       <div className="max-w-4xl mx-auto">
         <motion.div
           className="text-center mb-24"
@@ -72,16 +73,25 @@ export const WhyClario = () => {
                     visible: {
                       opacity: 1,
                       y: 0,
-                      transition: { duration: 0.6, ease: "easeOut" },
+                      transition: { duration: 0.6, ease: "easeOut" as const },
                     },
+                  }}
+                  style={{
+                    perspective: 900,
+                    transformStyle: "preserve-3d",
+                    transform: `rotateY(${isLeft ? 1 : -1}deg)`,
                   }}
                 >
                   {/* Faint Background Numeral */}
-                  <span
+                  <motion.span
                     className={`absolute top-0 ${isLeft ? "-left-6" : "-right-6"} text-[120px] md:text-[150px] mt-[-20px] leading-none font-hand text-warm-white opacity-10 select-none z-0 pointer-events-none`}
+                    initial={{ scale: 1 }}
+                    whileInView={{ scale: [1, 1.12, 1] }}
+                    viewport={{ once: true, amount: 0.6 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
                   >
                     {reason.num}
-                  </span>
+                  </motion.span>
 
                   <div className="relative z-10">
                     <h3 className="text-[22px] md:text-2xl font-bold text-warm-white mb-3 tracking-wide">
@@ -91,6 +101,18 @@ export const WhyClario = () => {
                       {reason.desc}
                     </p>
                   </div>
+
+                  {reason.num === "4" && (
+                    <motion.div
+                      className={`absolute ${isLeft ? "right-[-10px]" : "left-[-10px]"} top-1/2 -translate-y-1/2 text-warm-white/15 hidden md:block`}
+                      initial={{ opacity: 0, x: isLeft ? 20 : -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true, amount: 0.4 }}
+                      transition={{ duration: 0.6, ease: "easeOut" }}
+                    >
+                      <CelebrationFigure className="w-[100px] h-[140px]" />
+                    </motion.div>
+                  )}
                 </motion.div>
 
                 {/* Faint SVG Divider unless last item */}

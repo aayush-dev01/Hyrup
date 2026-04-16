@@ -9,7 +9,6 @@ interface SketchCardProps {
   tilt?: number;
   className?: string;
   onClick?: () => void;
-  as?: "div" | "button";
 }
 
 export const SketchCard = ({
@@ -17,41 +16,39 @@ export const SketchCard = ({
   tilt = 0,
   className = "",
   onClick,
-  as = "div",
 }: SketchCardProps) => {
-  const Component = as === "button" ? motion.button : motion.div;
-
   return (
-    <Component
-      className={`relative ${className}`}
+    <motion.div
+      className={`relative overflow-visible ${className}`}
       style={{ transform: `rotate(${tilt}deg)` }}
       whileHover={{
         y: -4,
         rotate: 0,
-        transition: { duration: 0.2, ease: "easeOut" },
+        transition: { duration: 0.2, ease: "easeOut" as const },
       }}
       onClick={onClick}
     >
       {children}
       <svg
-        className="absolute inset-0 w-full h-full pointer-events-none"
+        className="absolute w-full h-full pointer-events-none overflow-visible"
+        style={{ inset: "-1px" }}
         preserveAspectRatio="none"
-        viewBox="0 0 200 200"
+        viewBox="0 0 100 100"
       >
-        <motion.path
-          d="M 4 6 C 40 3, 160 2, 196 5 C 198 40, 197 160, 195 195 C 160 198, 40 197, 5 194 C 2 160, 3 40, 4 6"
+        {/* Imperfect quadrilateral — corners slightly offset from 0/100 */}
+        <path
+          d="M 2 3 L 98 1 L 99 97 L 1 98 Z"
           fill="none"
           stroke="currentColor"
-          strokeWidth="2"
+          strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
           className="text-ink/[0.15]"
           vectorEffect="non-scaling-stroke"
-          initial={{ pathLength: 0.92 }}
-          whileHover={{ pathLength: 1 }}
-          transition={{ duration: 0.3 }}
         />
       </svg>
-    </Component>
+    </motion.div>
   );
 };
+
+export default SketchCard;

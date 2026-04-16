@@ -3,8 +3,13 @@ import { headers } from "next/headers";
 import { WebhookEvent } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { createNotification } from "@/lib/notifications";
+import { NotificationTypes } from "@/lib/notification-types";
+import { logger, withRequestId } from "@/lib/logger";
+import * as Sentry from "@sentry/nextjs";
 
 export async function POST(req: Request) {
+  const requestMeta = withRequestId();
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
@@ -35,7 +40,8 @@ export async function POST(req: Request) {
       "svix-signature": svix_signature,
     }) as WebhookEvent;
   } catch (err) {
-    console.error("Error verifying webhook:", err);
+    logger.error("clerk.webhook.verify.failed", { ...requestMeta, error: String(err) });
+    Sentry.captureException(err);
     return new Response("Error verifying webhook signature", { status: 400 });
   }
 
@@ -63,13 +69,75 @@ export async function POST(req: Request) {
           },
         },
       });
+      await createNotification(
+        id,
+        NotificationTypes.TEACHER_WELCOME,
+        "Welcome to Clario",
+        "Your account is ready. Pick your role and complete setup to personalize your dashboard.",
+        process.env.SOCKET_SERVER_INTERNAL_URL
+      );
+      logger.info("clerk.webhook.user.created", { ...requestMeta, userId: id });
       return NextResponse.json({ received: true }, { status: 200 });
     } catch (dbError) {
-      console.error("Supabase Sync Error:", dbError);
+      logger.error("clerk.webhook.user.create.failed", {
+        ...requestMeta,
+        userId: id,
+        error: String(dbError),
+      });
+      Sentry.captureException(dbError);
       return NextResponse.json(
         { error: "Database sync failed" },
         { status: 500 },
       );
+    }
+  }
+
+  if (evt.type === "user.updated") {
+    const { id, email_addresses, first_name, last_name, image_url, public_metadata } = evt.data;
+    const email =
+      email_addresses && email_addresses.length > 0
+        ? email_addresses[0].email_address
+        : "";
+    const role = String(public_metadata?.role ?? "").toUpperCase();
+    try {
+      await db.user.upsert({
+        where: { id },
+        create: {
+          id,
+          email,
+          firstName: first_name || "",
+          lastName: last_name || "",
+          imageUrl: image_url,
+          role: role === "TEACHER" ? "TEACHER" : "LEARNER",
+        },
+        update: {
+          email,
+          firstName: first_name || "",
+          lastName: last_name || "",
+          imageUrl: image_url,
+          ...(role === "TEACHER" ? { role: "TEACHER" as const } : {}),
+        },
+      });
+      if (role === "TEACHER") {
+        await createNotification(
+          id,
+          NotificationTypes.TEACHER_WELCOME,
+          "Welcome, teacher",
+          "Your teaching profile is live. Complete setup to appear in discovery.",
+          process.env.SOCKET_SERVER_INTERNAL_URL
+        );
+      }
+      logger.info("clerk.webhook.user.updated", { ...requestMeta, userId: id, role });
+      return NextResponse.json({ received: true }, { status: 200 });
+    } catch (error) {
+      logger.error("clerk.webhook.user.updated.failed", {
+        ...requestMeta,
+        userId: id,
+        role,
+        error: String(error),
+      });
+      Sentry.captureException(error);
+      return NextResponse.json({ error: "Database sync failed" }, { status: 500 });
     }
   }
 

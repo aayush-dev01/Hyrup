@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { SketchButton } from "../ui/SketchButton";
 import { HandText } from "../ui/HandText";
 import { Doodle } from "../ui/Doodle";
+import { WallpaperBackground } from "@/components/landing/WallpaperBackground";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -28,7 +29,7 @@ const itemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: "easeOut" },
+    transition: { duration: 0.6, ease: "easeOut" as const },
   },
 };
 
@@ -37,14 +38,16 @@ const illustrationVariants = {
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.8, ease: "easeOut", delay: 0.4 },
+    transition: { duration: 0.8, ease: "easeOut" as const, delay: 0.4 },
   },
 };
 
 export const Hero = () => {
   return (
     <section className="relative w-full min-h-screen bg-warm-white pt-[120px] pb-[100px] px-6 md:px-12 flex items-center justify-center overflow-hidden">
-      <div className="max-w-7xl w-full mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
+      <WallpaperBackground className="z-[0]" />
+      <div className="absolute inset-0 z-[1]" style={{ background: "linear-gradient(to bottom, rgba(249,248,246,0.88), rgba(249,248,246,0.92))" }} />
+      <div className="relative z-[2] max-w-7xl w-full mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
         {/* Left Content Area */}
         <motion.div
           className="flex-1 w-full space-y-8"

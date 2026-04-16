@@ -2,16 +2,78 @@
 
 /**
  * Testimonial.tsx
- * A minimalist, typography-led section featuring a single powerful quote.
- * Uses inline SVG quotation marks and a Doodle to anchor the attribution.
+ * Cinematic testimonial: word-by-word reveal + slow ring rotation on scroll.
  */
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useEffect, useMemo, useRef } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { Doodle } from "../ui/Doodle";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 export const Testimonial = () => {
+  const reduce = useReducedMotion();
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const ringRef = useRef<HTMLDivElement | null>(null);
+
+  const words = useMemo(
+    () =>
+      `“I spent months watching tutorials and hitting a wall. Ten minutes on a live call with a Clario teacher and everything finally clicked.”`
+        .split(" "),
+    []
+  );
+
+  useEffect(() => {
+    if (reduce) return;
+    if (!sectionRef.current) return;
+    gsap.registerPlugin(ScrollTrigger);
+    const wordEls = sectionRef.current.querySelectorAll("[data-quote-word]");
+    const ctx = gsap.context(() => {
+      gsap.set(wordEls, { opacity: 0, y: 10 });
+      gsap.to(wordEls, {
+        opacity: 1,
+        y: 0,
+        ease: "power2.out",
+        stagger: 0.03,
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 70%",
+          end: "top 30%",
+          scrub: 1.2,
+        },
+      });
+
+      const keyUnderlines = sectionRef.current?.querySelectorAll("[data-key-underline]");
+      if (keyUnderlines && keyUnderlines.length) {
+        gsap.set(keyUnderlines, { opacity: 0, scaleX: 0.6, transformOrigin: "left center" });
+        gsap.to(keyUnderlines, {
+          opacity: 1,
+          scaleX: 1,
+          ease: "power2.out",
+          stagger: 0.15,
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 58%",
+          },
+        });
+      }
+      if (ringRef.current) {
+        gsap.to(ringRef.current, {
+          rotate: 360,
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1.2,
+          },
+        });
+      }
+    }, sectionRef);
+    return () => ctx.revert();
+  }, [reduce]);
+
   return (
-    <section className="w-full bg-warm-white py-[120px] px-6 md:px-12 flex flex-col items-center overflow-hidden">
+    <section ref={sectionRef} className="w-full bg-warm-white py-[140px] px-6 md:px-12 flex flex-col items-center overflow-hidden">
       <motion.div
         className="max-w-3xl mx-auto flex flex-col items-center text-center w-full"
         initial={{ opacity: 0, y: 30 }}
@@ -34,12 +96,22 @@ export const Testimonial = () => {
         </div>
 
         <h3 className="text-[26px] md:text-3xl font-medium italic text-ink leading-[1.4] max-w-[700px] mb-12">
-          &ldquo;I spent months watching tutorials and hitting a wall. Ten minutes on
-          a live call with a Clario teacher and everything finally clicked.&rdquo;
+          {words.map((w, i) => (
+            <span key={i} data-quote-word className="inline-block mr-2 relative">
+              <span className={w.toLowerCase().includes("minutes") || w.toLowerCase().includes("clicked") ? "text-ink" : ""}>
+                {w}
+              </span>
+              {(w.toLowerCase().includes("minutes") || w.toLowerCase().includes("clicked")) && (
+                <span data-key-underline className="absolute left-0 right-0 -bottom-2 text-ink/40">
+                  <Doodle type="squiggle-underline" className="w-full h-4" />
+                </span>
+              )}
+            </span>
+          ))}
         </h3>
 
         <div className="flex flex-col items-center relative inline-flex pb-6">
-          <div className="absolute -inset-6 z-0 text-ink opacity-10 flex items-center justify-center pointer-events-none mt-2">
+          <div ref={ringRef} className="absolute -inset-6 z-0 text-ink opacity-10 flex items-center justify-center pointer-events-none mt-2">
             <Doodle type="circle-scribble" className="w-[120px] h-[120px]" />
           </div>
 

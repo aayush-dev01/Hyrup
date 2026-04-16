@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Sans, Caveat } from "next/font/google";
+import { DM_Sans, Caveat, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { TRPCReactProvider } from "@/lib/trpc/provider";
@@ -9,6 +9,10 @@ const caveat = Caveat({
   subsets: ["latin"],
   weight: ["400", "700"],
   variable: "--font-caveat",
+});
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-display",
 });
 
 export const metadata: Metadata = {
@@ -26,7 +30,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body
-          className={`${dmSans.variable} ${caveat.variable} font-sans bg-warm-white text-ink antialiased`}
+          className={`${dmSans.variable} ${caveat.variable} ${playfair.variable} font-sans bg-warm-white text-ink antialiased`}
         >
           <TRPCReactProvider>{children}</TRPCReactProvider>
         </body>

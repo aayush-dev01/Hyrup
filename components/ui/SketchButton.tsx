@@ -3,7 +3,6 @@
 /**
  * SketchButton.tsx
  * A button component with a hand-drawn SVG border that redraws itself on hover.
- * Used for primary actions and secondary outlines throughout the landing page.
  */
 import React from "react";
 import Link from "next/link";
@@ -15,6 +14,8 @@ interface SketchButtonProps {
   onClick?: () => void;
   href?: string;
   className?: string;
+  disabled?: boolean;
+  type?: "button" | "submit" | "reset";
 }
 
 export const SketchButton = ({
@@ -23,6 +24,8 @@ export const SketchButton = ({
   onClick,
   href,
   className = "",
+  disabled,
+  type,
 }: SketchButtonProps) => {
   const isPrimary = variant === "primary";
 
@@ -30,6 +33,9 @@ export const SketchButton = ({
 
   const textStyles = isPrimary ? "text-warm-white" : "text-ink";
   const bgStyles = isPrimary ? "bg-ink" : "bg-transparent";
+
+  // Outline drawing interaction
+  const PATH_LENGTH = 280;
 
   const content = (
     <>
@@ -53,9 +59,13 @@ export const SketchButton = ({
           strokeLinecap="round"
           strokeLinejoin="round"
           className="text-ink"
+          strokeDasharray={PATH_LENGTH}
           variants={{
-            initial: { pathLength: 0.95 },
-            hover: { pathLength: 1, transition: { duration: 0.3 } },
+            initial: { strokeDashoffset: PATH_LENGTH },
+            hover: { 
+              strokeDashoffset: 0, 
+              transition: { duration: 0.4, ease: "easeOut" } 
+            },
           }}
           vectorEffect="non-scaling-stroke"
         />
@@ -68,10 +78,12 @@ export const SketchButton = ({
     onClick,
     initial: "initial",
     whileHover: "hover",
+    whileTap: disabled ? undefined : { scale: 0.96 },
     variants: {
       initial: { scale: 1, rotate: 0 },
-      hover: { scale: 1.03, rotate: -1, transition: { duration: 0.3 } },
+      hover: disabled ? {} : { scale: 1.02, rotate: -0.5, transition: { duration: 0.2 } },
     },
+    disabled,
   };
 
   if (href) {
@@ -82,5 +94,5 @@ export const SketchButton = ({
     );
   }
 
-  return <motion.button {...wrapperProps}>{content}</motion.button>;
+  return <motion.button {...wrapperProps} type={type}>{content}</motion.button>;
 };

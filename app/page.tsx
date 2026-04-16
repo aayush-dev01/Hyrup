@@ -1,7 +1,6 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
-import { MarqueeSeparator } from "@/components/sections/MarqueeSeparator";
 import { HowItWorks } from "@/components/sections/HowItWorks";
 import { FeaturedTeachers } from "@/components/sections/FeaturedTeachers";
 import { WhyClario } from "@/components/sections/WhyClario";
@@ -14,7 +13,6 @@ export default function Home() {
       <Header />
       <main className="w-full min-h-screen bg-warm-white flex flex-col pt-0">
         <Hero />
-        <MarqueeSeparator />
         <HowItWorks />
         <FeaturedTeachers />
         <WhyClario />

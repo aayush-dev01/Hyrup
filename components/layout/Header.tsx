@@ -15,7 +15,7 @@ export const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 60);
+      setScrolled(window.scrollY > 80);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     // Execute on initial load map state correctly
@@ -25,26 +25,33 @@ export const Header = () => {
 
   return (
     <motion.header
-      className={`fixed top-0 left-0 w-full z-50 transition-colors duration-300 ${scrolled ? "bg-warm-white" : "bg-transparent"}`}
+      className={`fixed top-0 left-0 w-full z-50 transition-colors duration-300 ${
+        scrolled ? "bg-warm-white/80 backdrop-blur-md" : "bg-transparent"
+      }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
       {/* Sketchy Bottom Border visible only when scrolled */}
       <div
-        className={`absolute bottom-0 left-0 w-full h-[3px] text-[#E8E6E0] pointer-events-none transition-opacity duration-300 ${scrolled ? "opacity-100" : "opacity-0"}`}
+        className={`absolute bottom-0 left-0 w-full h-[3px] text-[#E8E6E0] pointer-events-none transition-opacity duration-300 ${
+          scrolled ? "opacity-100" : "opacity-0"
+        }`}
       >
         <svg
           className="w-full h-full"
           preserveAspectRatio="none"
           viewBox="0 0 100 3"
         >
-          <path
+          <motion.path
             d="M 0 1 Q 25 3 50 1 T 100 2"
             stroke="currentColor"
             strokeWidth="1.5"
             fill="none"
             vectorEffect="non-scaling-stroke"
+            strokeDasharray="140"
+            animate={{ strokeDashoffset: scrolled ? 0 : 140 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
           />
         </svg>
       </div>
@@ -72,7 +79,7 @@ export const Header = () => {
 
         <nav className="flex items-center gap-4 md:gap-8 z-10">
           <Link
-            href="#"
+            href="/sign-up"
             className="hidden md:inline-block text-sm font-medium text-ink-muted hover:text-ink transition-colors"
           >
             For teachers
