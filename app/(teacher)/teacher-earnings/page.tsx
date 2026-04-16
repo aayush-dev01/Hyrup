@@ -164,7 +164,7 @@ export default async function TeacherEarningsPage() {
         </h3>
         <div className="flex flex-col">
           {payments.slice(0, 12).map((p, i) => {
-            const learnerName = `${p.booking.learner.user.firstName} ${p.booking.learner.user.lastName}`.trim();
+            const learnerName = p.booking.learner?.user ? `${p.booking.learner.user.firstName} ${p.booking.learner.user.lastName}`.trim() : "Unknown Learner";
             const topic = p.booking.teacher.topics?.[0]?.name ?? "Session";
             const date = p.booking.startTime.toLocaleDateString("en-US", { month: "short", day: "numeric" });
             const status = p.status === "PAID_OUT" ? "Paid" : "Pending";
