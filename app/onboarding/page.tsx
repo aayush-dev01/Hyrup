@@ -24,8 +24,9 @@ export default function OnboardingPage() {
   const completeMutation = trpc.users.completeOnboarding.useMutation({
     onSuccess: (data) => {
       router.refresh();
-      if (data.role === "LEARNER") router.push("/dashboard");
-      if (data.role === "TEACHER") router.push("/teacher-dashboard");
+      if (data.success && data.redirectTo) {
+        router.push(data.redirectTo);
+      }
     },
   });
 
