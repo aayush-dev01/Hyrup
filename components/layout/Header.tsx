@@ -72,7 +72,7 @@ export const Header = () => {
 
         <nav className="flex items-center gap-4 md:gap-8 z-10">
           <Link
-            href="#"
+            href="/sign-up"
             className="hidden md:inline-block text-sm font-medium text-ink-muted hover:text-ink transition-colors"
           >
             For teachers

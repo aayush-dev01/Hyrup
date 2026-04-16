@@ -3,7 +3,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { AvatarSVG } from "@/components/ui/AvatarSVG";
+import { ProfileAvatar } from "@/components/ui/ProfileAvatar";
 import { SketchButton } from "@/components/ui/SketchButton";
 import { SketchCard } from "@/components/ui/SketchCard";
 import { TabBar } from "@/components/ui/TabBar";
@@ -54,7 +54,7 @@ export default function TeacherProfilePage() {
         <div className="lg:w-[38%] lg:sticky lg:top-24 lg:self-start">
           {/* Avatar with scribble circle */}
           <div className="relative w-[120px] h-[120px] mx-auto lg:mx-0 mb-6">
-            <AvatarSVG seed={TEACHER.name} size={120} className="relative z-10" />
+            <ProfileAvatar seed={TEACHER.name} size={120} className="relative z-10" />
             <motion.svg
               className="absolute inset-[-8px] w-[136px] h-[136px]"
               viewBox="0 0 136 136"
