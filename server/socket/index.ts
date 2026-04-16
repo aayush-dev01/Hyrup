@@ -5,8 +5,9 @@ import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
 import * as Sentry from "@sentry/node";
-import { NotificationTypes } from "../../lib/notification-types";
+import * as NTypes from "../../lib/notification-types";
 import { logger } from "../../lib/logger";
+const NotificationTypes = NTypes.NotificationTypes || (NTypes as any).default?.NotificationTypes || NTypes;
 
 type JoinRoomPayload = { roomId: string; userId: string; role: "LEARNER" | "TEACHER" | "ADMIN" | string };
 type OfferPayload = { roomId: string; offer: unknown; targetSocketId: string };

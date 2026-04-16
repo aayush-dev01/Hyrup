@@ -9,7 +9,7 @@ import { RatingDisplay } from "@/components/ui/RatingDisplay";
 import { SketchButton } from "@/components/ui/SketchButton";
 import { SketchDivider } from "@/components/ui/SketchDivider";
 
-type TodayBooking = {
+type UpcomingBooking = {
   id: string;
   startTime: Date;
   endTime: Date;
@@ -32,7 +32,7 @@ export function TeacherDashboardClient(props: {
   firstName: string;
   imageUrl: string | null;
   stats: { sessionsThisMonth: number; earnedThisMonth: number; pendingEscrow: number };
-  today: TodayBooking[];
+  upcoming: UpcomingBooking[];
   paymentsThisMonth: PaymentRow[];
   feedback: FeedbackRow[];
 }) {
@@ -56,7 +56,7 @@ export function TeacherDashboardClient(props: {
           {props.firstName}
         </h1>
         <p className="text-ink-muted text-[15px] mt-4 max-w-xl">
-          {props.today.length > 0 ? `You have ${props.today.length} session${props.today.length === 1 ? "" : "s"} today.` : "No sessions today — a clear day to prepare."}
+          {props.upcoming.length > 0 ? `You have ${props.upcoming.length} upcoming session${props.upcoming.length === 1 ? "" : "s"}.` : "No upcoming sessions — a clear day to prepare."}
         </p>
       </motion.div>
 
@@ -81,19 +81,20 @@ export function TeacherDashboardClient(props: {
         transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" as const }}
       >
         <h3 className="text-[20px] font-bold text-ink mb-5">
-          Today&apos;s <span className="font-hand" style={{ transform: "rotate(-1deg)", display: "inline-block" }}>sessions</span>
+          Upcoming <span className="font-hand" style={{ transform: "rotate(-1deg)", display: "inline-block" }}>sessions</span>
         </h3>
 
-        {props.today.length === 0 ? (
+        {props.upcoming.length === 0 ? (
           <SketchCard className="p-6">
-            <p className="text-[14px] text-ink-muted">No sessions today — a clear day to prepare.</p>
+            <p className="text-[14px] text-ink-muted">No upcoming sessions — a clear day to prepare.</p>
           </SketchCard>
         ) : (
           <div className="flex flex-col gap-3">
-            {props.today.map((b) => {
-              const learnerName = `${b.learner.user.firstName} ${b.learner.user.lastName}`.trim();
+            {props.upcoming.map((b) => {
+              const learnerName = b.learner?.user ? `${b.learner.user.firstName} ${b.learner.user.lastName}`.trim() : "Unknown Learner";
               const topic = b.teacher.topics?.[0]?.name ?? "Session";
               const time = new Date(b.startTime).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+              const dateStr = new Date(b.startTime).toLocaleDateString([], { month: "short", day: "numeric" });
               const duration = `${Math.round((+b.endTime - +b.startTime) / 60000)} min`;
               return (
                 <SketchCard key={b.id} className="p-5">
@@ -106,7 +107,7 @@ export function TeacherDashboardClient(props: {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-[14px] text-ink-muted">{time} · {duration}</span>
+                      <span className="text-[14px] text-ink-muted">{dateStr} · {time} · {duration}</span>
                       <SketchButton variant="ghost" className="!text-[13px] !px-4 !py-1.5">Prepare</SketchButton>
                       {b.session?.roomIdentifier ? (
                         <SketchButton variant="primary" className="!text-[13px] !px-4 !py-1.5" href={`/session/${b.session.roomIdentifier}`}>

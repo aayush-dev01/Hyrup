@@ -8,10 +8,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postinstall": "prisma generate",
     "start": "next start",
     "lint": "next lint",
     "seed": "npx prisma db seed",
-    "socket": "tsx server/socket/index.ts",
+    "socket": "npx ts-node server/socket/index.ts",
     "test": "vitest run"
   },
   "dependencies": {

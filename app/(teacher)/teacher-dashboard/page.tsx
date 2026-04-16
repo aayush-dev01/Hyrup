@@ -33,11 +33,9 @@ export default async function TeacherDashboardPage() {
   const teacherId = user.teacherProfile.id;
   const now = new Date();
   const dayStart = startOfDay(now);
-  const dayEnd = new Date(dayStart);
-  dayEnd.setDate(dayEnd.getDate() + 1);
 
-  const today = await db.booking.findMany({
-    where: { teacherId, startTime: { gte: dayStart, lt: dayEnd } },
+  const upcoming = await db.booking.findMany({
+    where: { teacherId, startTime: { gte: dayStart }, status: "CONFIRMED" },
     orderBy: { startTime: "asc" },
     include: {
       learner: { include: { user: { select: { firstName: true, lastName: true, imageUrl: true } } } },
@@ -84,7 +82,7 @@ export default async function TeacherDashboardPage() {
       firstName={user.firstName}
       imageUrl={user.imageUrl ?? null}
       stats={{ sessionsThisMonth, earnedThisMonth, pendingEscrow }}
-      today={today}
+      upcoming={upcoming}
       paymentsThisMonth={paymentsThisMonth.map((p) => ({ amount: Number(p.amount), status: p.status, createdAt: p.createdAt }))}
       feedback={feedback}
     />

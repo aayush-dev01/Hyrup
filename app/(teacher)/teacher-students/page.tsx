@@ -49,7 +49,7 @@ export default async function TeacherStudentsPage() {
 
   for (const b of bookings) {
     const lid = b.learnerId;
-    const name = `${b.learner.user.firstName} ${b.learner.user.lastName}`.trim();
+    const name = b.learner?.user ? `${b.learner.user.firstName} ${b.learner.user.lastName}`.trim() : "Unknown Learner";
     const topic = b.teacher.topics?.[0]?.name ?? "Session";
     const prev = byLearner.get(lid);
     if (!prev) {
