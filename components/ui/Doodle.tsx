@@ -13,7 +13,8 @@ type DoodleType =
   | "circle-scribble"
   | "arrow-curved"
   | "stars-cluster"
-  | "dashed-path";
+  | "dashed-path"
+  | "scribble-line";
 
 interface DoodleProps {
   type: DoodleType;
@@ -112,6 +113,21 @@ export const Doodle = ({ type, className = "" }: DoodleProps) => {
             initial="initial"
             animate="animate"
             transition={{ duration: 1.2, ease: "easeInOut" }}
+          />
+        );
+      case "scribble-line":
+        return (
+          <motion.path
+            d="M 8 55 C 18 40, 28 70, 38 52 C 48 35, 58 68, 68 50 C 78 32, 88 64, 92 52"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            variants={pathVariants}
+            initial="initial"
+            animate="animate"
+            transition={{ duration: 0.7, ease: "easeInOut" }}
           />
         );
       default:
