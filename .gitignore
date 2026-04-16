@@ -34,3 +34,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ai system
+clario-ai-system/
+
+# env files
+.env
+
+# logs
+*.log
+
+# misc
+snapshot.html
