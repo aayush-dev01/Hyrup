@@ -1,16 +1,13 @@
-import { router, publicProcedure } from '../trpc';
-import { usersRouter } from './users';
-import { actionItemsRouter } from './actionItems';
+import { router, publicProcedure } from "../trpc";
+import { usersRouter } from "./users";
+import { actionItemsRouter } from "./actionItems";
+import { teachersRouter } from "./teachers";
+import { bookingsRouter } from "./bookings";
+import { sessionsRouter } from "./sessions";
+import { notificationsRouter } from "./notifications";
+import { messagesRouter } from "./messages";
 
 const searchRouter = router({
-  ping: publicProcedure.query(() => ({ ok: true })),
-});
-
-const bookingsRouter = router({
-  ping: publicProcedure.query(() => ({ ok: true })),
-});
-
-const sessionsRouter = router({
   ping: publicProcedure.query(() => ({ ok: true })),
 });
 
@@ -21,9 +18,12 @@ const aiRouter = router({
 export const appRouter = router({
   users: usersRouter,
   actionItems: actionItemsRouter,
-  search: searchRouter,
+  teachers: teachersRouter,
   bookings: bookingsRouter,
   sessions: sessionsRouter,
+  notifications: notificationsRouter,
+  messages: messagesRouter,
+  search: searchRouter,
   ai: aiRouter,
 });
 

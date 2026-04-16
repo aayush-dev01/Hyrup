@@ -6,6 +6,7 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "darwin-arm64"]
 }
 
 // ---------------------------------------------------------
@@ -57,6 +58,7 @@ model LearnerProfile {
   userId       String    @unique
   user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   goals        String?   @db.Text
+  onboardingCompleted Boolean @default(false)
   stripeCustId String?   @unique
   
   bookings     Booking[]
@@ -71,11 +73,32 @@ model TeacherProfile {
   bio              String    @db.Text
   hourlyRate       Decimal   @db.Decimal(10, 2)
   isAccepting      Boolean   @default(true)
+  onboardingCompleted Boolean @default(false)
   stripeConnectId  String?   @unique
   
   topics           Topic[]   @relation("TeacherTopics")
   bookings         Booking[]
   feedbacks        Feedback[]
+  availability     TeacherAvailability[]
+}
+
+model TeacherAvailability {
+  id         String   @id @default(uuid())
+  teacherId  String
+  teacher    TeacherProfile @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  // 0=Sun ... 6=Sat
+  dayOfWeek  Int
+  // minutes from 00:00
+  startMin   Int
+  endMin     Int
+  // slot size in minutes (e.g. 30/60)
+  slotMin    Int      @default(60)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([teacherId, dayOfWeek])
 }
 
 model Topic {

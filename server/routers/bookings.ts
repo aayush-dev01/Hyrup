@@ -1,0 +1,218 @@
+/* Purpose: Booking lifecycle + payments + session room creation (real Prisma queries). */
+
+import { router, protectedProcedure } from "../trpc";
+import { z } from "zod";
+import { createNotification, buildBookingRequestMessage, buildCancelMessage } from "@/lib/notifications";
+import { NotificationTypes } from "@/lib/notification-types";
+import { logger } from "@/lib/logger";
+import crypto from "crypto";
+import { TRPCError } from "@trpc/server";
+
+function fmtDate(d: Date) {
+  return d.toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+}
+
+export const bookingsRouter = router({
+  create: protectedProcedure
+    .input(
+      z.object({
+        teacherId: z.string(),
+        startTime: z.date(),
+        durationMinutes: z.number().int().min(15).max(240),
+        notes: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const requestId = crypto.randomUUID();
+      const learner = await ctx.db.learnerProfile.findUnique({ where: { userId: ctx.userId }, include: { user: true } });
+      if (!learner) throw new Error("Learner profile required");
+
+      const teacher = await ctx.db.teacherProfile.findUnique({
+        where: { id: input.teacherId },
+        include: { user: true, topics: true },
+      });
+      if (!teacher) throw new Error("Teacher not found");
+      if (!teacher.onboardingCompleted || !teacher.isAccepting || teacher.userId.startsWith("seed_")) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Teacher not available for booking." });
+      }
+
+      if (input.startTime.getTime() <= Date.now()) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Please choose a future time slot.",
+        });
+      }
+
+      const endTime = new Date(input.startTime);
+      endTime.setMinutes(endTime.getMinutes() + input.durationMinutes);
+
+      const roomIdentifier = crypto.randomUUID();
+
+      const booking = await ctx.db.$transaction(async (tx) => {
+        const overlap = await tx.booking.findFirst({
+          where: {
+            teacherId: teacher.id,
+            status: { in: ["CONFIRMED", "PENDING"] },
+            startTime: { lt: endTime },
+            endTime: { gt: input.startTime },
+          },
+          select: { id: true },
+        });
+        if (overlap) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "This slot was just booked. Please choose another time.",
+          });
+        }
+
+        return tx.booking.create({
+          data: {
+            teacherId: teacher.id,
+            learnerId: learner.id,
+            startTime: input.startTime,
+            endTime,
+            status: "CONFIRMED",
+            notes: input.notes,
+            session: {
+              create: { roomIdentifier },
+            },
+            payment: {
+              create: {
+                stripePaymentIntentId: crypto.randomUUID(),
+                amount: teacher.hourlyRate,
+                platformFee: 0,
+                status: "UNPAID",
+              },
+            },
+          },
+          include: {
+            session: true,
+            teacher: { include: { user: true } },
+            learner: { include: { user: true } },
+          },
+        });
+      });
+
+      const socketServer = process.env.SOCKET_SERVER_INTERNAL_URL;
+      await createNotification(
+        teacher.userId,
+        NotificationTypes.BOOKING_REQUEST,
+        "New booking request",
+        buildBookingRequestMessage({
+          learnerName: `${learner.user.firstName} ${learner.user.lastName}`.trim() || "A learner",
+          dateLabel: fmtDate(input.startTime),
+          topicName: teacher.topics[0]?.name ?? null,
+        }),
+        socketServer
+      );
+      logger.info("booking.created", {
+        requestId,
+        userId: ctx.userId,
+        bookingId: booking.id,
+        roomId: booking.session?.roomIdentifier ?? roomIdentifier,
+      });
+
+      return {
+        booking,
+        roomIdentifier: booking.session?.roomIdentifier ?? roomIdentifier,
+      };
+    }),
+
+  getUpcoming: protectedProcedure.query(async ({ ctx }) => {
+    const user = await ctx.db.user.findUnique({
+      where: { id: ctx.userId },
+      include: { learnerProfile: true, teacherProfile: true },
+    });
+    if (!user) return [];
+
+    const now = new Date();
+    const where =
+      user.role === "TEACHER"
+        ? { teacherId: user.teacherProfile?.id ?? "__none__", status: "CONFIRMED" as const, startTime: { gt: now } }
+        : { learnerId: user.learnerProfile?.id ?? "__none__", status: "CONFIRMED" as const, startTime: { gt: now } };
+
+    return ctx.db.booking.findMany({
+      where,
+      orderBy: { startTime: "asc" },
+      include: {
+        teacher: { include: { user: true, topics: true } },
+        learner: { include: { user: true } },
+        session: true,
+      },
+    });
+  }),
+
+  getPast: protectedProcedure.query(async ({ ctx }) => {
+    const user = await ctx.db.user.findUnique({
+      where: { id: ctx.userId },
+      include: { learnerProfile: true, teacherProfile: true },
+    });
+    if (!user) return [];
+
+    const where =
+      user.role === "TEACHER"
+        ? { teacherId: user.teacherProfile?.id ?? "__none__", status: "COMPLETED" as const }
+        : { learnerId: user.learnerProfile?.id ?? "__none__", status: "COMPLETED" as const };
+
+    return ctx.db.booking.findMany({
+      where,
+      orderBy: { startTime: "desc" },
+      include: {
+        teacher: { include: { user: true, topics: true } },
+        learner: { include: { user: true } },
+        feedback: true,
+        session: { include: { summary: { include: { actionItems: true } } } },
+      },
+    });
+  }),
+
+  cancel: protectedProcedure
+    .input(z.object({ bookingId: z.string(), reason: z.string().optional() }))
+    .mutation(async ({ ctx, input }) => {
+      const requestId = crypto.randomUUID();
+      const user = await ctx.db.user.findUnique({
+        where: { id: ctx.userId },
+        include: { learnerProfile: true, teacherProfile: true },
+      });
+      if (!user) throw new Error("User not found");
+
+      const booking = await ctx.db.booking.findUnique({
+        where: { id: input.bookingId },
+        include: { teacher: { include: { user: true } }, learner: { include: { user: true } }, session: true },
+      });
+      if (!booking) throw new Error("Booking not found");
+
+      const isTeacher = user.role === "TEACHER" && booking.teacherId === user.teacherProfile?.id;
+      const isLearner = user.role !== "TEACHER" && booking.learnerId === user.learnerProfile?.id;
+      if (!isTeacher && !isLearner) throw new Error("Not authorized");
+
+      const status = isTeacher ? "CANCELED_BY_TEACHER" : "CANCELED_BY_LEARNER";
+      const updated = await ctx.db.booking.update({
+        where: { id: booking.id },
+        data: { status, notes: input.reason ?? booking.notes },
+      });
+
+      const otherUserId = isTeacher ? booking.learner.userId : booking.teacher.userId;
+      const actorName =
+        isTeacher
+          ? `${booking.teacher.user.firstName} ${booking.teacher.user.lastName}`.trim() || "Teacher"
+          : `${booking.learner.user.firstName} ${booking.learner.user.lastName}`.trim() || "Learner";
+
+      const socketServer = process.env.SOCKET_SERVER_INTERNAL_URL;
+      await createNotification(
+        otherUserId,
+        NotificationTypes.BOOKING_CANCELLED,
+        "Session cancelled",
+        buildCancelMessage({ name: actorName, dateLabel: fmtDate(booking.startTime) }),
+        socketServer
+      );
+      logger.info("booking.cancelled", {
+        requestId,
+        userId: ctx.userId,
+        bookingId: booking.id,
+      });
+
+      return updated;
+    }),
+});
+
